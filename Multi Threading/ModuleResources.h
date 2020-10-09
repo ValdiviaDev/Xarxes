@@ -5,7 +5,7 @@
 // TODO 0: Uncomment this line to enable the usage of ModuleTaskManager
 #define USE_TASK_MANAGER
 
-//t[0] = std::thread(&MyClass::myFunc, this);  sintaxis para hacer algo de la practica
+
 
 struct Texture;
 

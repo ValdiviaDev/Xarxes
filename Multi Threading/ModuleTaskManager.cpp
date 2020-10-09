@@ -3,18 +3,25 @@
 
 void ModuleTaskManager::threadMain()
 {
-	std::unique_lock<std::mutex> lock(mtx);
+	// TODO 3:
+	// - Wait for new tasks to arrive
+	// - Retrieve a task from scheduledTasks
+	// - Execute it
+	// - Insert it into finishedTasks
 
-	while (scheduledTasks.empty() && !exitFlag)
 	{
-		// TODO 3:
-		// - Wait for new tasks to arrive
-		// - Retrieve a task from scheduledTasks
-		// - Execute it
-		// - Insert it into finishedTasks
-		
-		event.wait(lock);
+		std::unique_lock<std::mutex> lock(mtx);
 
+		while (scheduledTasks.empty()) {
+
+			event.wait(lock);
+		}
+
+		Task* task_aux = scheduledTasks.front();
+
+		scheduledTasks.front()->execute();
+		scheduledTasks.pop();
+		finishedTasks.push(task_aux);
 
 	}
 }
@@ -22,8 +29,8 @@ void ModuleTaskManager::threadMain()
 bool ModuleTaskManager::init()
 {
 	// TODO 1: Create threads (they have to execute threadMain())
-	for (int i = 0; i < MAX_THREADS; i++){
-		threads[i] = std::thread(&ModuleTaskManager::threadMain, this); //sintaxis correcta?
+	for (int i = 0; i < MAX_THREADS; i++) {
+		threads[i] = std::thread(&ModuleTaskManager::threadMain, this);
 	}
 
 	return true;
@@ -32,6 +39,13 @@ bool ModuleTaskManager::init()
 bool ModuleTaskManager::update()
 {
 	// TODO 4: Dispatch all finished tasks to their owner module (use Module::onTaskFinished() callback)
+	while (!finishedTasks.empty()) {
+		Module::onTaskFinished(finishedTasks.front());
+		finishedTasks.pop();
+		//join?
+	}
+	if (!scheduledTasks.empty())
+		event.notify_one();
 
 	return true;
 }
@@ -41,7 +55,13 @@ bool ModuleTaskManager::cleanUp()
 	// TODO 5: Notify all threads to finish and join them
 
 	//booleano exitFlag hacer algo con esto para salir de los threads
-	exitFlag = true;
+
+	{
+		std::unique_lock < std::mutex > lock(mtx);
+		exitFlag = true;
+		event.notify_all();
+
+	}
 
 	for (int i = 0; i < MAX_THREADS; i++) {
 		threads[i].join();
@@ -50,11 +70,13 @@ bool ModuleTaskManager::cleanUp()
 	return true;
 }
 
-void ModuleTaskManager::scheduleTask(Task *task, Module *owner)
+void ModuleTaskManager::scheduleTask(Task* task, Module* owner)
 {
 	task->owner = owner;
 
 	// TODO 2: Insert the task into scheduledTasks so it is executed by some thread
 	scheduledTasks.push(task);
+
+	event.notify_one(); //?¿?¿
 
 }
