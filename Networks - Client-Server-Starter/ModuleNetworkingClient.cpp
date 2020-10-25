@@ -49,6 +49,12 @@ bool ModuleNetworkingClient::update()
 	if (state == ClientState::Start)
 	{
 		// TODO(jesus): Send the player name to the server
+		if (send(socketClient, playerName.c_str(), sizeof(playerName), 0) == SOCKET_ERROR) {
+			reportError("send");
+		}
+
+		//TODO(not jesus): idk if logging or stopped
+		state = ClientState::Logging;
 	}
 
 	return true;

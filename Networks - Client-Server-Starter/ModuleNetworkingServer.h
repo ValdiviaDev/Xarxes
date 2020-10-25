@@ -40,8 +40,6 @@ private:
 
 	void onSocketDisconnected(SOCKET socket) override;
 
-	//void printWSErrorAndExit(const char* msg);
-
 
 	//////////////////////////////////////////////////////////////////////
 	// State

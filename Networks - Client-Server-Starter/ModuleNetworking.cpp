@@ -62,8 +62,19 @@ bool ModuleNetworking::preUpdate()
 	byte incomingDataBuffer[incomingDataBufferSize];
 
 	// TODO(jesus): select those sockets that have a read operation available
+	
+	fd_set readSet;
+	FD_ZERO(&readSet);
 
-	// TODO(jesus): for those sockets selected, check wheter or not they are
+	for (int i = 0; i < sockets.size(); ++i)
+		FD_SET(sockets[i], &readSet);
+
+	select(0, &readSet, nullptr, nullptr, nullptr);
+
+	for (int i = 0; i < sockets.size(); ++i)
+		FD_ISSET(sockets[i], &readSet);
+
+	// TODO(jesus): for those sockets selected, check whether or not they are
 	// a listen socket or a standard socket and perform the corresponding
 	// operation (accept() an incoming connection or recv() incoming data,
 	// respectively).
