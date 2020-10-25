@@ -23,7 +23,7 @@ bool ModuleNetworkingServer::start(int port)
 	// - Set address reuse
 
 	int enable = 1;
-	
+
 	if (setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&enable, sizeof(enable)) == SOCKET_ERROR) {
 		reportError("setsockopt");
 		return false;
@@ -43,7 +43,9 @@ bool ModuleNetworkingServer::start(int port)
 
 	// - Enter in listen mode
 
-	int simultaneousConnections = 3;
+	//TODO(no jesus) How many simultaneous connections?
+	int simultaneousConnections = 1;
+
 	if (listen(listenSocket, simultaneousConnections) == SOCKET_ERROR) {
 		reportError("listen");
 		return false;
