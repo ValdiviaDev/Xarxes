@@ -7,9 +7,31 @@ bool  ModuleNetworkingClient::start(const char * serverAddressStr, int serverPor
 
 	// TODO(jesus): TCP connection stuff
 	// - Create the socket
+
+	socketClient = socket(AF_INET, SOCK_STREAM, 0);
+	if (socketClient == INVALID_SOCKET) {
+		reportError("socket");
+		return false;
+	}
+
 	// - Create the remote address object
+
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_port = htons(serverPort);
+	const char* remoteAddrStr = serverAddressStr;
+	inet_pton(AF_INET, remoteAddrStr, &serverAddress.sin_addr);
+
 	// - Connect to the remote address
+
+	if (connect(socketClient, (sockaddr*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
+		reportError("connect");
+		return false;
+	}
+
+
 	// - Add the created socket to the managed list of sockets using addSocket()
+
+	addSocket(socketClient);
 
 	// If everything was ok... change the state
 	state = ClientState::Start;
@@ -44,6 +66,16 @@ bool ModuleNetworkingClient::gui()
 		ImGui::Image(tex->shaderResource, texSize);
 
 		ImGui::Text("%s connected to the server...", playerName.c_str());
+
+
+		//Printing port and server adress of client
+		char str[INET_ADDRSTRLEN];
+
+		inet_ntop(AF_INET, &(serverAddress.sin_addr), str, INET_ADDRSTRLEN);
+
+		ImGui::Text("port %i, addr %s", serverAddress.sin_port, str);
+
+
 
 		ImGui::End();
 	}

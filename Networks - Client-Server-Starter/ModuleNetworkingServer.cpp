@@ -23,8 +23,7 @@ bool ModuleNetworkingServer::start(int port)
 	// - Set address reuse
 
 	int enable = 1;
-	//iResult = setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const char*)&enable, sizeof(enable)); //Explicado en p7 cuadro amarillo
-	//if (iResult == SOCKET_ERROR) {
+	
 	if (setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&enable, sizeof(enable)) == SOCKET_ERROR) {
 		reportError("setsockopt");
 		return false;

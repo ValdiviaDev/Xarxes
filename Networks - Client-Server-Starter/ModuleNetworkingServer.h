@@ -40,6 +40,7 @@ private:
 
 	void onSocketDisconnected(SOCKET socket) override;
 
+	//void printWSErrorAndExit(const char* msg);
 
 
 	//////////////////////////////////////////////////////////////////////
@@ -54,7 +55,7 @@ private:
 
 	ServerState state = ServerState::Stopped;
 
-	SOCKET listenSocket;
+	SOCKET listenSocket = INVALID_SOCKET;
 
 	struct ConnectedSocket
 	{
