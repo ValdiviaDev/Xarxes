@@ -54,7 +54,7 @@ bool ModuleNetworkingClient::update()
 		}
 
 		//TODO(not jesus): idk if logging or stopped
-		state = ClientState::Stopped;
+		state = ClientState::Logging;
 	}
 
 	return true;

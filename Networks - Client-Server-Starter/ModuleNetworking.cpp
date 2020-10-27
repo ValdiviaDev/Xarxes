@@ -119,7 +119,6 @@ bool ModuleNetworking::preUpdate()
 
 	}
 
-
 	// TODO(jesus): handle disconnections. Remember that a socket has been
 	// disconnected from its remote end either when recv() returned 0,
 	// or when it generated some errors such as ECONNRESET.
