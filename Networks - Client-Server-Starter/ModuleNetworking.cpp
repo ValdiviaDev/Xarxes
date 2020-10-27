@@ -63,16 +63,24 @@ bool ModuleNetworking::preUpdate()
 
 	// TODO(jesus): select those sockets that have a read operation available
 	
-	fd_set readSet;
+	fd_set readSet; //Create a collection of sockets 
 	FD_ZERO(&readSet);
 
 	for (int i = 0; i < sockets.size(); ++i)
-		FD_SET(sockets[i], &readSet);
+		FD_SET(sockets[i], &readSet);//Add a socket to a collection
 
-	select(0, &readSet, nullptr, nullptr, nullptr);
+
+	// Timeout (return immediately)
+	struct timeval timeout;
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 0;
+
+	if (select(0, &readSet, nullptr, nullptr, &timeout) == SOCKET_ERROR) {
+		reportError("select");
+	}
 
 	for (int i = 0; i < sockets.size(); ++i)
-		FD_ISSET(sockets[i], &readSet);
+		FD_ISSET(sockets[i], &readSet); //Check if a socket is still in the collection after select
 
 	// TODO(jesus): for those sockets selected, check whether or not they are
 	// a listen socket or a standard socket and perform the corresponding
