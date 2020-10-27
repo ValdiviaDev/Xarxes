@@ -7,7 +7,6 @@ bool  ModuleNetworkingClient::start(const char * serverAddressStr, int serverPor
 
 	// TODO(jesus): TCP connection stuff
 	// - Create the socket
-
 	socketClient = socket(AF_INET, SOCK_STREAM, 0);
 	if (socketClient == INVALID_SOCKET) {
 		reportError("socket");
@@ -15,14 +14,12 @@ bool  ModuleNetworkingClient::start(const char * serverAddressStr, int serverPor
 	}
 
 	// - Create the remote address object
-
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_port = htons(serverPort);
 	const char* remoteAddrStr = serverAddressStr;
 	inet_pton(AF_INET, remoteAddrStr, &serverAddress.sin_addr);
 
 	// - Connect to the remote address
-
 	if (connect(socketClient, (sockaddr*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
 		reportError("connect");
 		return false;
@@ -30,7 +27,6 @@ bool  ModuleNetworkingClient::start(const char * serverAddressStr, int serverPor
 
 
 	// - Add the created socket to the managed list of sockets using addSocket()
-
 	addSocket(socketClient);
 
 	// If everything was ok... change the state
@@ -53,7 +49,6 @@ bool ModuleNetworkingClient::update()
 			reportError("send");
 		}
 
-		//TODO(not jesus): idk if logging or stopped
 		state = ClientState::Logging;
 	}
 
