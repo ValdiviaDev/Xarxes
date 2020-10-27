@@ -69,10 +69,19 @@ bool ModuleNetworking::preUpdate()
 	for (int i = 0; i < sockets.size(); ++i)
 		FD_SET(sockets[i], &readSet);
 
-	select(0, &readSet, nullptr, nullptr, nullptr);
+	// Timeout (return immediately)
+	struct timeval timeout;
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 0;
 
-	for (int i = 0; i < sockets.size(); ++i)
-		FD_ISSET(sockets[i], &readSet);
+	if (select(0, &readSet, nullptr, nullptr, &timeout) == SOCKET_ERROR) {
+
+		reportError("Oops, the select function failed");
+		return false;
+	}
+
+	//for (int i = 0; i < sockets.size(); ++i)
+	//	FD_ISSET(sockets[i], &readSet);
 
 	// TODO(jesus): for those sockets selected, check whether or not they are
 	// a listen socket or a standard socket and perform the corresponding
@@ -83,6 +92,33 @@ bool ModuleNetworking::preUpdate()
 	// connected socket to the managed list of sockets.
 	// On recv() success, communicate the incoming data received to the
 	// subclass (use the callback onSocketReceivedData()).
+	for (int i = 0; i < readSet.fd_count; ++i) {
+		SOCKET auxSocket = readSet.fd_array[i];
+		
+		if (isListenSocket(auxSocket)) {
+			sockaddr_in sockAddr;
+			int addrSize = sizeof(sockAddr);
+
+			SOCKET connectedSocket = accept(auxSocket, (sockaddr*)&sockAddr, &addrSize);
+
+			if (connectedSocket == INVALID_SOCKET) {
+				reportError("Oops, the accept function in failed");
+				return false;
+			}
+
+			onSocketConnected(connectedSocket, sockAddr);
+			addSocket(connectedSocket);
+		}
+		else {
+			if (recv(auxSocket, (char*)incomingDataBuffer, incomingDataBufferSize, 0) == SOCKET_ERROR) {
+				reportError("Oops, the recv function in failed");
+				return false;
+			}
+			onSocketReceivedData(auxSocket, incomingDataBuffer);
+		}
+
+	}
+
 
 	// TODO(jesus): handle disconnections. Remember that a socket has been
 	// disconnected from its remote end either when recv() returned 0,
