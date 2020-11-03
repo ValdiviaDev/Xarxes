@@ -25,11 +25,13 @@ private:
 
 	virtual void onSocketConnected(SOCKET socket, const sockaddr_in &socketAddress) { }
 
-	virtual void onSocketReceivedData(SOCKET s, byte * data) = 0;
+	virtual void onSocketReceivedData(SOCKET s, const InputMemoryStream &packet) = 0; //NUEVO (hay que arreglar las funciones xa que funcionen con estos parametros)
 
 	virtual void onSocketDisconnected(SOCKET s) = 0;
 
 	void HandleDisconnections(SOCKET toDisconnect);
+
+	static bool sendPacket(const OutputMemoryStream& packet, SOCKET socket);
 
 protected:
 

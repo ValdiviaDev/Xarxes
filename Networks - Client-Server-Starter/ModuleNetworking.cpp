@@ -57,6 +57,16 @@ bool ModuleNetworking::preUpdate()
 {
 	if (sockets.empty()) return true;
 
+	//**************NUEVO (hay qe arreglar)*********************************************
+	InputMemoryStream packet;
+	int bytesRead = recv(socket, packet.GetBufferPtr(), packet.GetCapacity(), 0);
+
+	if (bytesRead > 0) {
+		packet.SetSize((uint32)bytesRead);
+		onSocketReceivedData(socket, packet);
+	}
+	//*********************************************************************************
+
 	// NOTE(jesus): You can use this temporary buffer to store data from recv()
 	const uint32 incomingDataBufferSize = Kilobytes(1);
 	byte incomingDataBuffer[incomingDataBufferSize];
@@ -168,4 +178,15 @@ void ModuleNetworking::HandleDisconnections(SOCKET toDisconnect)
 void ModuleNetworking::addSocket(SOCKET socket)
 {
 	sockets.push_back(socket);
+}
+
+bool ModuleNetworking::sendPacket(const OutputMemoryStream& packet, SOCKET socket)
+{
+	int result = send(socket, packet.GetBufferPtr(), packet.GetSize(), 0);
+	if (result == SOCKET_ERROR)
+	{
+		reportError("send");
+		return false;
+	}
+	return true;
 }
