@@ -94,7 +94,17 @@ bool ModuleNetworkingClient::gui()
 
 void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemoryStream &packet)
 {
-	state = ClientState::Stopped;
+	if (state == ClientState::Logging) {
+		ClientMessage clientMessage;
+		packet >> clientMessage;
+		if (clientMessage == ClientMessage::Welcome) {
+			std::string welcomMsg;
+			packet >> welcomMsg;
+			LOG(welcomMsg.c_str());
+		}
+	}
+
+	//state = ClientState::Stopped;
 }
 
 void ModuleNetworkingClient::onSocketDisconnected(SOCKET socket)

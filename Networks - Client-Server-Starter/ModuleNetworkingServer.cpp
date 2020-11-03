@@ -138,6 +138,12 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 			if (connectedSocket.socket == socket)
 			{
 				connectedSocket.playerName = playerName;
+
+				//Welcome message when entering the chat
+				OutputMemoryStream packet;
+				packet << ClientMessage::Welcome;
+				packet << "Welcome to the chat room, "+ playerName;
+				sendPacket(packet, connectedSocket.socket);
 			}
 		}
 	}
