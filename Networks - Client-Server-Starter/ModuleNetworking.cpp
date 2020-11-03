@@ -62,7 +62,6 @@ bool ModuleNetworking::preUpdate()
 	byte incomingDataBuffer[incomingDataBufferSize];
 
 	// TODO(jesus): select those sockets that have a read operation available
-	
 	fd_set readSet; //Create a collection of sockets 
 	FD_ZERO(&readSet);
 
@@ -78,11 +77,6 @@ bool ModuleNetworking::preUpdate()
 	if (select(0, &readSet, nullptr, nullptr, &timeout) == SOCKET_ERROR) {
 		reportError("select");
 	}
-
-
-	//for (int i = 0; i < sockets.size(); ++i)
-		//FD_ISSET(sockets[i], &readSet); //Check if a socket is still in the collection after select
-
 
 	// TODO(jesus): for those sockets selected, check whether or not they are
 	// a listen socket or a standard socket and perform the corresponding
@@ -111,23 +105,23 @@ bool ModuleNetworking::preUpdate()
 			addSocket(connectedSocket);
 		}
 		else {
-			if (recv(auxSocket, (char*)incomingDataBuffer, incomingDataBufferSize, 0) == SOCKET_ERROR) {
-				reportError("Oops, the recv function in failed");
-				return false;
+			int receiving = recv(auxSocket, (char*)incomingDataBuffer, incomingDataBufferSize, 0);
+
+			if (receiving == SOCKET_ERROR) {
+				//Here the client disconnects
+				HandleDisconnections(auxSocket);
+	
 			}
-			onSocketReceivedData(auxSocket, incomingDataBuffer);
+			else if (receiving == 0 || receiving == ECONNRESET) {
+				//Here the server disconnects
+				HandleDisconnections(auxSocket);
+			}
+			else {
+				//This is the case where the receiving succeds
+				onSocketReceivedData(auxSocket, incomingDataBuffer);
+			}
 		}
-
 	}
-
-	// TODO(jesus): handle disconnections. Remember that a socket has been
-	// disconnected from its remote end either when recv() returned 0,
-	// or when it generated some errors such as ECONNRESET.
-	// Communicate detected disconnections to the subclass using the callback
-	// onSocketDisconnected().
-
-	// TODO(jesus): Finally, remove all disconnected sockets from the list
-	// of managed sockets.
 
 	return true;
 }
@@ -148,6 +142,27 @@ bool ModuleNetworking::cleanUp()
 	}
 
 	return true;
+}
+
+void ModuleNetworking::HandleDisconnections(SOCKET toDisconnect)
+{
+	// TODO(jesus): handle disconnections. Remember that a socket has been
+	// disconnected from its remote end either when recv() returned 0,
+	// or when it generated some errors such as ECONNRESET.
+	// Communicate detected disconnections to the subclass using the callback
+	// onSocketDisconnected().
+	onSocketDisconnected(toDisconnect);
+
+	// TODO(jesus): Finally, remove all disconnected sockets from the list
+	// of managed sockets.
+	for (std::vector<SOCKET>::iterator it = sockets.begin(); it != sockets.end(); ++it)
+	{
+		if ((*it) == toDisconnect)
+		{
+			sockets.erase(it);
+			break;
+		}
+	}
 }
 
 void ModuleNetworking::addSocket(SOCKET socket)

@@ -29,7 +29,7 @@ private:
 
 	virtual void onSocketDisconnected(SOCKET s) = 0;
 
-
+	void HandleDisconnections(SOCKET toDisconnect);
 
 protected:
 

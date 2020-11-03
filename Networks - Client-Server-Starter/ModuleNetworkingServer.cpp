@@ -13,7 +13,6 @@ bool ModuleNetworkingServer::start(int port)
 {
 	// TODO(jesus): TCP listen socket stuff
 	// - Create the listenSocket
-
 	listenSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (listenSocket == INVALID_SOCKET) {
 		reportError("socket");
@@ -21,7 +20,6 @@ bool ModuleNetworkingServer::start(int port)
 	}
 
 	// - Set address reuse
-
 	int enable = 1;
 
 	if (setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&enable, sizeof(enable)) == SOCKET_ERROR) {
@@ -30,7 +28,6 @@ bool ModuleNetworkingServer::start(int port)
 	}
 
 	// - Bind the socket to a local interface
-
 	sockaddr_in localAddr;
 	localAddr.sin_family = AF_INET;
 	localAddr.sin_port = htons(port);
@@ -42,9 +39,7 @@ bool ModuleNetworkingServer::start(int port)
 	}
 
 	// - Enter in listen mode
-
-	//TODO(no jesus) How many simultaneous connections?
-	int simultaneousConnections = 1;
+	int simultaneousConnections = 3;
 
 	if (listen(listenSocket, simultaneousConnections) == SOCKET_ERROR) {
 		reportError("listen");
@@ -52,7 +47,6 @@ bool ModuleNetworkingServer::start(int port)
 	}
 
 	// - Add the listenSocket to the managed list of sockets using addSocket()
-
 	addSocket(listenSocket);
 	
 
