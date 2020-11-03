@@ -31,8 +31,6 @@ private:
 
 	void HandleDisconnections(SOCKET toDisconnect);
 
-	static bool sendPacket(const OutputMemoryStream& packet, SOCKET socket);
-
 protected:
 
 	std::vector<SOCKET> sockets;
@@ -42,5 +40,7 @@ protected:
 	void disconnect();
 
 	static void reportError(const char *message);
+
+	static bool sendPacket(const OutputMemoryStream& packet, SOCKET socket);
 };
 

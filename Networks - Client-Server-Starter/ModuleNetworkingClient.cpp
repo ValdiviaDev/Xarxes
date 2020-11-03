@@ -44,12 +44,20 @@ bool ModuleNetworkingClient::update()
 {
 	if (state == ClientState::Start)
 	{
-		// TODO(jesus): Send the player name to the server
-		if (send(socketClient, playerName.c_str(), sizeof(playerName), 0) == SOCKET_ERROR) {
-			reportError("send");
-		}
+		//Sending the name with streams now
+		OutputMemoryStream packet;
+		packet << ClientMessage::Hello;
+		packet << playerName;
 
-		state = ClientState::Logging;
+		if (sendPacket(packet, socketClient)) {
+			state = ClientState::Logging;
+		}
+		else
+		{
+			reportError("SendPacket in NetworkingClient Update");
+			disconnect();
+			state = ClientState::Stopped;
+		}
 	}
 
 	return true;

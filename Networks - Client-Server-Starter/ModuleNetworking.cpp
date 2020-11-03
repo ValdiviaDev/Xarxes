@@ -57,20 +57,6 @@ bool ModuleNetworking::preUpdate()
 {
 	if (sockets.empty()) return true;
 
-	//**************NUEVO (hay qe arreglar)*********************************************
-	InputMemoryStream packet;
-	int bytesRead = recv(socket, packet.GetBufferPtr(), packet.GetCapacity(), 0);
-
-	if (bytesRead > 0) {
-		packet.SetSize((uint32)bytesRead);
-		onSocketReceivedData(socket, packet);
-	}
-	//*********************************************************************************
-
-	// NOTE(jesus): You can use this temporary buffer to store data from recv()
-	const uint32 incomingDataBufferSize = Kilobytes(1);
-	byte incomingDataBuffer[incomingDataBufferSize];
-
 	// TODO(jesus): select those sockets that have a read operation available
 	fd_set readSet; //Create a collection of sockets 
 	FD_ZERO(&readSet);
@@ -115,7 +101,9 @@ bool ModuleNetworking::preUpdate()
 			addSocket(connectedSocket);
 		}
 		else {
-			int receiving = recv(auxSocket, (char*)incomingDataBuffer, incomingDataBufferSize, 0);
+			//New receive with streams
+			InputMemoryStream packet;
+			int receiving = recv(auxSocket, packet.GetBufferPtr(), packet.GetCapacity(), 0);
 
 			if (receiving == SOCKET_ERROR) {
 				//Here the client disconnects
@@ -127,8 +115,10 @@ bool ModuleNetworking::preUpdate()
 				HandleDisconnections(auxSocket);
 			}
 			else {
-				//This is the case where the receiving succeds
-				onSocketReceivedData(auxSocket, incomingDataBuffer);
+				//This is the case where the receiving succeds 
+				//(if the receiving number (bytesRead) > 0)
+				packet.SetSize((uint32)receiving);
+				onSocketReceivedData(auxSocket, packet);
 			}
 		}
 	}
