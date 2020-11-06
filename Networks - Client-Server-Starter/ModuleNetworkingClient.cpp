@@ -138,7 +138,9 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 	if (state == ClientState::Logging) {
 
 		switch (clientMessage) {
+		//Server message
 		case ServerMessage::Welcome:
+		case ServerMessage::UserDisconnect:
 		{
 			packet >> line.text;
 			line.user = "Server";
@@ -171,10 +173,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 			chat.push_back(line);
 			break;
 		}
-		
-
 	}
-	//state = ClientState::Stopped;
 }
 
 void ModuleNetworkingClient::onSocketDisconnected(SOCKET socket)

@@ -135,7 +135,6 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 
 	switch (clientMessage) {
 	case ClientMessage::Hello: {
-		
 		for (auto &connectedSocket : connectedSockets)
 		{
 			if (connectedSocket.socket == socket)
@@ -155,13 +154,13 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 				connectedSocket.playerName = playerName;
 
 				//Welcome message when entering the chat
-				
 				packet << ServerMessage::Welcome;
 				packet << "Welcome to the chat room, " + playerName;
 				sendPacket(packet, connectedSocket.socket);
 			}
 			else
 			{
+				//Notify all the other users if someone enters the room
 				OutputMemoryStream packet;
 				packet << ServerMessage::Welcome;
 				packet << playerName + " just entered the room";
@@ -204,7 +203,6 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 
 			}
 		}
-
 		break;
 	}
 	}
@@ -218,6 +216,14 @@ void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
 		auto &connectedSocket = *it;
 		if (connectedSocket.socket == socket)
 		{
+			for (auto &conSock : connectedSockets)
+			{
+				OutputMemoryStream packet;
+				packet << ServerMessage::UserDisconnect;
+				packet << connectedSocket.playerName + " has disconnected";
+				sendPacket(packet, conSock.socket);
+			}
+
 			connectedSockets.erase(it);
 			break;
 		}
