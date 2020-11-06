@@ -90,7 +90,13 @@ bool ModuleNetworkingClient::gui()
 
 		//Printing chat messages 
 		for (int i = 0; i < chat.size(); i++) {
-			ImGui::Text("%s: %s",chat[i].user.c_str(), chat[i].text.c_str());
+
+			if (chat[i].server) {
+				ImGui::TextColored({ 0.85,0.85,0.0,1 }, "%s: %s", chat[i].user.c_str(), chat[i].text.c_str());
+			}
+			else {
+				ImGui::Text("%s: %s", chat[i].user.c_str(), chat[i].text.c_str());
+			}
 		}
 
 		ImGui::EndChild();
@@ -108,6 +114,10 @@ bool ModuleNetworkingClient::gui()
 			if (!sendPacket(packet, socketClient)) {
 				reportError("Chat message could not be sent.");
 			}
+
+			
+			//To keep the input text focused after sending the message
+			ImGui::SetKeyboardFocusHere(-1);
 		}
 
 
@@ -121,20 +131,22 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 {
 	ServerMessage clientMessage;
 	packet >> clientMessage;
-
+	ChatLine line;
 	if (state == ClientState::Logging) {
 
 		switch (clientMessage) {
 		case ServerMessage::Welcome:
 		{
-			std::string welcomMsg;
-			packet >> welcomMsg;
-			LOG(welcomMsg.c_str());
+			packet >> line.text;
+			line.user = "Server";
+			line.server = true;
+
+			chat.push_back(line);
 			break;
 		}
 		case ServerMessage::MessageAll:
 
-			ChatLine line;
+			
 			packet >> line.user;
 			packet >> line.text;
 
