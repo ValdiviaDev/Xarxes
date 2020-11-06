@@ -147,7 +147,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 				{
 					if (playerName == auxSocket.playerName)
 					{
-						packet << ServerMessage::UserExsistsAlready;
+						packet << ServerMessage::UserExistsAlready;
 						sendPacket(packet, socket);
 						continue;
 					}
@@ -168,19 +168,35 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string text;
 		packet >> text;
 
-		for (auto &connectedSocket : connectedSockets)
-		{
+		if (text[0] == '/') {
+			//Text is a command
+			if (text == "/help") {
 
-			
+					OutputMemoryStream packet;
+					packet << ServerMessage::MessageServerAll;
+					packet << "Current avaliable commands:\n/help\n...";
 
-			OutputMemoryStream packet;
-			packet << ServerMessage::MessageAll;
-			packet << playerName;
-			packet << text;
-			sendPacket(packet, connectedSocket.socket);
+					for (auto &connectedSocket : connectedSockets) {
+						if (connectedSocket.socket == socket)
+							sendPacket(packet, connectedSocket.socket);
+					}
+			}
 
 		}
+		else {
+			//Text isn't a command
 
+			for (auto &connectedSocket : connectedSockets)
+			{
+
+				OutputMemoryStream packet;
+				packet << ServerMessage::MessageAll;
+				packet << playerName;
+				packet << text;
+				sendPacket(packet, connectedSocket.socket);
+
+			}
+		}
 
 		break;
 	}

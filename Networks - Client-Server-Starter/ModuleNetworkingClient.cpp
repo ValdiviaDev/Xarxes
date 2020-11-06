@@ -87,15 +87,16 @@ bool ModuleNetworkingClient::gui()
 		
 		//Chat window
 		ImGui::BeginChild(1, { 390.0f, 420.0f }, true);
-
+		
 		//Printing chat messages 
 		for (int i = 0; i < chat.size(); i++) {
 
 			if (chat[i].server) {
 				ImGui::TextColored({ 0.85,0.85,0.0,1 }, "%s: %s", chat[i].user.c_str(), chat[i].text.c_str());
+				
 			}
 			else {
-				ImGui::Text("%s: %s", chat[i].user.c_str(), chat[i].text.c_str());
+				ImGui::TextWrapped("%s: %s", chat[i].user.c_str(), chat[i].text.c_str());
 			}
 		}
 
@@ -154,12 +155,20 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 			chat.push_back(line);
 			break;
 
-		case ServerMessage::UserExsistsAlready:
+		case ServerMessage::UserExistsAlready:
 
 			chat.clear();
 			state = ClientState::Stopped;
 			disconnectOne(socket);
 			
+			break;
+
+		case ServerMessage::MessageServerAll:
+			line.user = "Server";
+			packet >> line.text;
+			line.server = true;
+
+			chat.push_back(line);
 			break;
 		}
 		
