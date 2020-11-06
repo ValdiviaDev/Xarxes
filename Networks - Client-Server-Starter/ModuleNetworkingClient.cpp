@@ -76,6 +76,7 @@ bool ModuleNetworkingClient::gui()
 
 		ImGui::Text("%s connected to the server...", playerName.c_str());
 
+		
 
 		//Printing port and server adress of client
 		char str[INET_ADDRSTRLEN];
@@ -86,11 +87,29 @@ bool ModuleNetworkingClient::gui()
 		
 		//Chat window
 		ImGui::BeginChild(1, { 390.0f, 420.0f }, true);
+
+		//Printing chat messages 
+		for (int i = 0; i < chat.size(); i++) {
+			ImGui::Text("%s: %s",chat[i].user.c_str(), chat[i].text.c_str());
+		}
+
 		ImGui::EndChild();
 
 		//Chat input box
-		static char chat_text[30] = "";
-		ImGui::InputText("Chat", chat_text, IM_ARRAYSIZE(chat_text));
+		static char chat_text[1024] = "";
+		if (ImGui::InputText("Chat", chat_text, IM_ARRAYSIZE(chat_text), ImGuiInputTextFlags_::ImGuiInputTextFlags_EnterReturnsTrue)) {
+
+			OutputMemoryStream packet;
+			packet << ClientMessage::ChatMessage;
+			packet << playerName;
+			packet << chat_text;
+
+			//Send the chat message to the server
+			if (!sendPacket(packet, socketClient)) {
+				reportError("Chat message could not be sent.");
+			}
+		}
+
 
 		ImGui::End();
 	}
@@ -100,16 +119,31 @@ bool ModuleNetworkingClient::gui()
 
 void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemoryStream &packet)
 {
+	ServerMessage clientMessage;
+	packet >> clientMessage;
+
 	if (state == ClientState::Logging) {
-		ClientMessage clientMessage;
-		packet >> clientMessage;
-		if (clientMessage == ClientMessage::Welcome) {
+
+		switch (clientMessage) {
+		case ServerMessage::Welcome:
+		{
 			std::string welcomMsg;
 			packet >> welcomMsg;
 			LOG(welcomMsg.c_str());
+			break;
 		}
-	}
+		case ServerMessage::MessageAll:
 
+			ChatLine line;
+			packet >> line.user;
+			packet >> line.text;
+
+			chat.push_back(line);
+			break;
+			   
+		}
+
+	}
 	//state = ClientState::Stopped;
 }
 

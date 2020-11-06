@@ -2,6 +2,13 @@
 
 #include "ModuleNetworking.h"
 
+struct ChatLine {
+	std::string text;
+	std::string user;
+	
+	//server, colour, whisper...? TODO
+};
+
 class ModuleNetworkingClient : public ModuleNetworking
 {
 public:
@@ -55,5 +62,7 @@ private:
 	SOCKET socketClient = INVALID_SOCKET;
 
 	std::string playerName;
+
+	std::vector<ChatLine> chat;
 };
 

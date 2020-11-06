@@ -129,10 +129,13 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 	// Set the player name
 	ClientMessage clientMessage;
 	packet >> clientMessage;
-	if (clientMessage == ClientMessage::Hello) {
-		std::string playerName;
-		packet >> playerName;
 
+	std::string playerName;
+	packet >> playerName;
+
+	switch (clientMessage) {
+	case ClientMessage::Hello: {
+		
 		for (auto &connectedSocket : connectedSockets)
 		{
 			if (connectedSocket.socket == socket)
@@ -141,11 +144,34 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 
 				//Welcome message when entering the chat
 				OutputMemoryStream packet;
-				packet << ClientMessage::Welcome;
-				packet << "Welcome to the chat room, "+ playerName;
+				packet << ServerMessage::Welcome;
+				packet << "Welcome to the chat room, " + playerName;
 				sendPacket(packet, connectedSocket.socket);
 			}
 		}
+		break;
+	}
+	case ClientMessage::ChatMessage: {
+
+		std::string text;
+		packet >> text;
+
+		for (auto &connectedSocket : connectedSockets)
+		{
+
+			
+
+			OutputMemoryStream packet;
+			packet << ServerMessage::MessageAll;
+			packet << playerName;
+			packet << text;
+			sendPacket(packet, connectedSocket.socket);
+
+		}
+
+
+		break;
+	}
 	}
 }
 
