@@ -142,6 +142,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 			{
 				OutputMemoryStream packet;
 
+				//Checking if the name is already in use
 				for (auto &auxSocket : connectedSockets)
 				{
 					if (playerName == auxSocket.playerName)
