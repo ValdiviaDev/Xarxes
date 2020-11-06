@@ -83,8 +83,14 @@ bool ModuleNetworkingClient::gui()
 		inet_ntop(AF_INET, &(serverAddress.sin_addr), str, INET_ADDRSTRLEN);
 
 		ImGui::Text("port %i, addr %s", serverAddress.sin_port, str);
+		
+		//Chat window
+		ImGui::BeginChild(1, { 390.0f, 420.0f }, true);
+		ImGui::EndChild();
 
-
+		//Chat input box
+		static char chat_text[30] = "";
+		ImGui::InputText("Chat", chat_text, IM_ARRAYSIZE(chat_text));
 
 		ImGui::End();
 	}
