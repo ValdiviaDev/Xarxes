@@ -39,6 +39,8 @@ protected:
 
 	void disconnect();
 
+	void disconnectOne(SOCKET socket);
+
 	static void reportError(const char *message);
 
 	static bool sendPacket(const OutputMemoryStream& packet, SOCKET socket);

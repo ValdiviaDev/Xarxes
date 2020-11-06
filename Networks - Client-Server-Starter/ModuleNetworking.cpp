@@ -35,6 +35,18 @@ void ModuleNetworking::disconnect()
 	sockets.clear();
 }
 
+void ModuleNetworking::disconnectOne(SOCKET socket) {
+
+	shutdown(socket, 2);
+	closesocket(socket);
+
+	for (int i = 0; i < sockets.size(); i++) {
+		if (socket == sockets[i])
+			sockets.erase(sockets.begin() + i);
+	}
+}
+
+
 bool ModuleNetworking::init()
 {
 	if (NumModulesUsingWinsock == 0)

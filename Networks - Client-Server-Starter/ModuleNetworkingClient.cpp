@@ -146,14 +146,21 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		}
 		case ServerMessage::MessageAll:
 
-			
 			packet >> line.user;
 			packet >> line.text;
 
 			chat.push_back(line);
 			break;
-			   
+
+		case ServerMessage::UserExsistsAlready:
+
+			chat.clear();
+			state = ClientState::Stopped;
+			disconnectOne(socket);
+			
+			break;
 		}
+		
 
 	}
 	//state = ClientState::Stopped;

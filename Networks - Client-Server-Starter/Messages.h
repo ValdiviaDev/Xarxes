@@ -13,6 +13,7 @@ enum class ClientMessage
 enum class ServerMessage
 {
 	Welcome,
-	MessageAll
+	MessageAll,
+	UserExsistsAlready
 };
 
