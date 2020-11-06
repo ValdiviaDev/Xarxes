@@ -115,9 +115,11 @@ bool ModuleNetworkingClient::gui()
 				reportError("Chat message could not be sent.");
 			}
 
-			
 			//To keep the input text focused after sending the message
 			ImGui::SetKeyboardFocusHere(-1);
+
+			//Delete line when sent
+			strcpy_s(chat_text, "");
 		}
 
 
