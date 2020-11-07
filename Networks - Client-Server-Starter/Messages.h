@@ -17,6 +17,8 @@ enum class ServerMessage
 	UserExistsAlready,
 	MessageServerAll,
 	UserDisconnect,
-	KickUser
+	KickUser,
+	UserList
+
 };
 
