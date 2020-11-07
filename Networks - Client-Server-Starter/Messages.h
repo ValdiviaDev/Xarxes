@@ -19,7 +19,7 @@ enum class ServerMessage
 	UserDisconnect,
 	KickUser,
 	UserList,
-	Whisper
-
+	Whisper,
+	ChangeUsername
 };
 
