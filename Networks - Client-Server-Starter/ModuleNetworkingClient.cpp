@@ -189,6 +189,14 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 			chat.push_back(line);
 			break;
 			}
+		case ServerMessage::ChangeUsername:
+			packet >> playerName;
+			line.user = "Server";
+			line.text = "New username: " + playerName;
+			
+			line.server = true;
+			chat.push_back(line);
+			break;
 
 		}
 	}

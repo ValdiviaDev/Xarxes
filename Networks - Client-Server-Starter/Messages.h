@@ -18,7 +18,8 @@ enum class ServerMessage
 	MessageServerAll,
 	UserDisconnect,
 	KickUser,
-	UserList
+	UserList,
+	ChangeUsername
 
 };
 

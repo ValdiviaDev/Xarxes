@@ -219,7 +219,42 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 				}
 
 			}
-			else {
+			else if (text.find("/change_name ") != std::string::npos) {
+				playerName = text.substr(13); //13 = change_name length + 1 for spacebar
+				bool name_repeated = false;
+
+				for (auto &connectedSocket : connectedSockets)
+				{
+					if (connectedSocket.socket == socket)
+					{
+						//Check that nobody else in the room has the chosen name
+						for (auto &connectedSocketAux : connectedSockets) {
+							if (connectedSocketAux.playerName == playerName && connectedSocketAux.socket != connectedSocket.socket) {
+								OutputMemoryStream packet;
+								packet << ServerMessage::MessageServerAll;
+								packet << "Someone already has that name! Try another one";
+								sendPacket(packet, connectedSocket.socket);
+
+								name_repeated = true;
+							}
+							
+						}
+
+						//If nobody else has this name in the room, change it
+						if (!name_repeated) {
+							//Change user name in the user client
+							OutputMemoryStream packet;
+							packet << ServerMessage::ChangeUsername;
+							packet << playerName;
+							sendPacket(packet, connectedSocket.socket);
+
+							//Change the user name in the server vector
+							connectedSocket.playerName = playerName;
+						}
+					}
+				}
+
+			} else {
 				//TODO send message to the user saying that command doesnt exists, type /help
 				int TODO = 0;
 			}
