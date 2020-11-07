@@ -176,6 +176,8 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 
 		if (text[0] == '/') {
 			//Text is a command
+		
+
 			if (text == "/help") {
 
 					OutputMemoryStream packet;
@@ -186,6 +188,24 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 						if (connectedSocket.socket == socket)
 							sendPacket(packet, connectedSocket.socket);
 					}
+			}
+			else if (text.find("/kick ") != std::string::npos) {
+				playerName = text.substr(6); //6 = kick length + 1 for spacebar
+				
+				for (auto &auxSocket : connectedSockets)
+				{
+					if (playerName == auxSocket.playerName)
+					{
+						OutputMemoryStream packet;
+						packet << ServerMessage::KickUser;
+						sendPacket(packet, auxSocket.socket);
+					}
+				}
+
+			}
+			else {
+				//TODO send message to the user saying that command doesnt exists, type /help
+				int TODO = 0;
 			}
 
 		}

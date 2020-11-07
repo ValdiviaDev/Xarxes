@@ -157,6 +157,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 			chat.push_back(line);
 			break;
 
+		case ServerMessage::KickUser:
 		case ServerMessage::UserExistsAlready:
 
 			chat.clear();
@@ -172,6 +173,11 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 
 			chat.push_back(line);
 			break;
+
+		
+
+
+		
 		}
 	}
 }
