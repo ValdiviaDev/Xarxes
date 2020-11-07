@@ -93,10 +93,15 @@ bool ModuleNetworkingClient::gui()
 
 			if (chat[i].server) {
 				ImGui::TextColored({ 0.85,0.85,0.0,1 }, "%s: %s", chat[i].user.c_str(), chat[i].text.c_str());
-				
+
 			}
 			else {
-				ImGui::TextWrapped("%s: %s", chat[i].user.c_str(), chat[i].text.c_str());
+				if (chat[i].whisper) {
+					ImGui::TextWrapped("%s whispered: %s", chat[i].user.c_str(), chat[i].text.c_str());
+				}
+				else {
+					ImGui::TextWrapped("%s: %s", chat[i].user.c_str(), chat[i].text.c_str());
+				}
 			}
 		}
 
@@ -189,7 +194,16 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 			chat.push_back(line);
 			break;
 			}
+		case ServerMessage::Whisper:
 
+			
+			packet >> line.user;
+			packet >> line.text;
+			line.whisper = true;
+
+			chat.push_back(line);
+
+			break;
 		}
 	}
 }

@@ -6,6 +6,8 @@ struct ChatLine {
 	std::string text;
 	std::string user;
 	bool server = false;
+	bool whisper = false;
+	
 	
 	//server, colour, whisper...? TODO
 };

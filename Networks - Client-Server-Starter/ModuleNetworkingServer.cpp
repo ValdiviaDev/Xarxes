@@ -202,7 +202,52 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 					}
 				}
 
-			} else if (text == "/list") {
+			}
+			else if (text.find("/whisper ") != std::string::npos) {
+				std::string name = text.substr(9);
+			
+				int spacebar_pos = name.find(" ");
+
+				if (spacebar_pos != std::string::npos) {
+
+					std::string text_whisper = name;
+					name = text_whisper.substr(0, spacebar_pos);
+					text_whisper = text_whisper.substr(spacebar_pos + 1);
+
+					bool user_found = false;
+
+					for (auto &auxSocket : connectedSockets)
+					{
+						if (name == auxSocket.playerName)
+						{
+							user_found = true;
+
+							OutputMemoryStream packet;
+							packet << ServerMessage::Whisper;
+							packet << playerName;
+							packet << text_whisper;
+							sendPacket(packet, auxSocket.socket);
+
+							OutputMemoryStream packet2;
+							packet2 << ServerMessage::Whisper;
+							packet2 << "you";
+							packet2 << text_whisper;
+							sendPacket(packet2, socket);
+						}
+					}
+
+					if (!user_found) {
+
+						OutputMemoryStream packet2;
+						packet2 << ServerMessage::MessageServerAll;
+						packet2 << "User not found.";
+						sendPacket(packet2, socket);
+					}
+				}
+
+
+			}
+			else if (text == "/list") {
 				//Send a list of all connected users
 				OutputMemoryStream packet;
 				packet << ServerMessage::UserList;
