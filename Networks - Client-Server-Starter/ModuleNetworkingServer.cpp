@@ -180,12 +180,28 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 
 					OutputMemoryStream packet;
 					packet << ServerMessage::MessageServerAll;
-					packet << "Current avaliable commands:\n/help\n...";
+					packet << "\n:::CURRENT AVAILABLE COMMANDS:::\n\n/help: view command list\n/list: view list of connected users\n/kick (username): kick out user from the chat room\n/whisper (username): initiate private chat with user\n/change_name (name): change your username\n";
 
 					for (auto &connectedSocket : connectedSockets) {
 						if (connectedSocket.socket == socket)
 							sendPacket(packet, connectedSocket.socket);
 					}
+			}
+			else if (text == "/list") {
+				//Send a list of all connected users
+				OutputMemoryStream packet;
+				packet << ServerMessage::UserList;
+				
+				std::vector<std::string> usernames;
+				for (auto &connectedSocket : connectedSockets)
+					usernames.push_back(connectedSocket.playerName);
+
+				packet << usernames;
+
+				for (auto &connectedSocket : connectedSockets) {
+					if (connectedSocket.socket == socket)
+						sendPacket(packet, connectedSocket.socket);
+				}
 			}
 
 		}
@@ -194,13 +210,11 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 
 			for (auto &connectedSocket : connectedSockets)
 			{
-
 				OutputMemoryStream packet;
 				packet << ServerMessage::MessageAll;
 				packet << playerName;
 				packet << text;
 				sendPacket(packet, connectedSocket.socket);
-
 			}
 		}
 		break;

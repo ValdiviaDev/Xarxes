@@ -172,6 +172,21 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 
 			chat.push_back(line);
 			break;
+		case ServerMessage::UserList: {
+			line.user = "Server";
+			line.text = "\n :::LIST OF CONNECTED USERS:::\n";
+			
+			//Unwrap list of users and add them to the message of the chat
+			std::vector<std::string> usernames;
+			packet >> usernames;
+			for (int i = 0; i < usernames.size(); ++i) {
+				line.text += "\n" + usernames[i];
+			}
+
+			line.server = true;
+			chat.push_back(line);
+			break;
+			}
 		}
 	}
 }
