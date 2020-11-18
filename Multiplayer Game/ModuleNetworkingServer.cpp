@@ -187,8 +187,17 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				}
 			}
 		}
-
 		// TODO(you): UDP virtual connection lab session
+		else if (message == ClientMessage::Ping) {
+
+			OutputMemoryStream PingPacket;
+			PingPacket << PROTOCOL_ID;
+			PingPacket << ServerMessage::Ping;
+			sendPacket(PingPacket, fromAddress);
+
+		}
+
+		
 	}
 }
 

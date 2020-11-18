@@ -41,7 +41,7 @@
 #define DISCONNECT_TIMEOUT_SECONDS                      5.0f
 #define PACKET_DELIVERY_TIMEOUT_SECONDS                 0.5f
 #define DEFAULT_PACKET_SIZE                     Kilobytes(4)
-#define PING_INTERVAL_SECONDS                           0.5f
+#define PING_INTERVAL_SECONDS                           1.0f
 
 
 ////////////////////////////////////////////////////////////////////////

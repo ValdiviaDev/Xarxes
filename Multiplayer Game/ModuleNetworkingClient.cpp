@@ -127,12 +127,19 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 			WLOG("ModuleNetworkingClient::onPacketReceived() - Unwelcome from server :-(");
 			disconnect();
 		}
+		
 	}
 	else if (state == ClientState::Connected)
 	{
 		// TODO(you): World state replication lab session
 
 		// TODO(you): Reliability on top of UDP lab session
+
+		if (message == ServerMessage::Ping) {
+
+			secondsSinceLastPingReceived = 0.0f;
+			LOG("PIIIIIIIIIIIIIIIIING");
+		}
 	}
 }
 
@@ -146,9 +153,10 @@ void ModuleNetworkingClient::onUpdate()
 	
 	if (secondsSinceLastPingReceived >= PING_INTERVAL_SECONDS) {
 		//Send ping every PING_INTERVAL_SECONDS seconds
-		//OutputMemoryStream packet;
-		//packet << ClientMessage::Ping;
-		//sendPacket(packet, serverAddress);
+		OutputMemoryStream packet;
+		packet << PROTOCOL_ID;
+		packet << ClientMessage::Ping;
+		sendPacket(packet, serverAddress);
 		
 		//Reset
 		secondsSinceLastPingReceived = 0.0f;
