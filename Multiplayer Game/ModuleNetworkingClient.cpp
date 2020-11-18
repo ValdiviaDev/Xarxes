@@ -102,7 +102,8 @@ void ModuleNetworkingClient::onGui()
 
 void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, const sockaddr_in &fromAddress)
 {
-	// TODO(you): UDP virtual connection lab session
+	// TODO(you): UDP virtual connection lab session (Reset timer of packet recieved)
+	secondsSinceLastPacketReceived = 0.0f;
 
 	uint32 protoId;
 	packet >> protoId;
@@ -139,8 +140,19 @@ void ModuleNetworkingClient::onUpdate()
 {
 	if (state == ClientState::Stopped) return;
 
-
-	// TODO(you): UDP virtual connection lab session
+	// TODO(you): UDP virtual connection lab session (Update packet timer and ping timer every iteration)
+	secondsSinceLastPacketReceived += Time.deltaTime;
+	secondsSinceLastPingReceived += Time.deltaTime;
+	
+	if (secondsSinceLastPingReceived >= PING_INTERVAL_SECONDS) {
+		//Send ping every PING_INTERVAL_SECONDS seconds
+		//OutputMemoryStream packet;
+		//packet << ClientMessage::Ping;
+		//sendPacket(packet, serverAddress);
+		
+		//Reset
+		secondsSinceLastPingReceived = 0.0f;
+	}
 
 
 	if (state == ClientState::Connecting)
@@ -162,7 +174,12 @@ void ModuleNetworkingClient::onUpdate()
 	}
 	else if (state == ClientState::Connected)
 	{
-		// TODO(you): UDP virtual connection lab session
+		// TODO(you): UDP virtual connection lab session (disconnect if the time exceeds)
+		if (secondsSinceLastPacketReceived >= DISCONNECT_TIMEOUT_SECONDS) {
+			disconnect();
+			//Reset (idk if i shoud reset)
+			secondsSinceLastPacketReceived = 0.0f;
+		}
 
 		// Process more inputs if there's space
 		if (inputDataBack - inputDataFront < ArrayCount(inputData))
