@@ -136,7 +136,7 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 		}
 
 		// TODO(you): World state replication lab session
-		else if (message != ServerMessage::Replicate) {
+		else if (message == ServerMessage::Replicate) {
 			repManagerClient.read(packet);
 		}
 
