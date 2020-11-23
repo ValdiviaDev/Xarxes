@@ -241,6 +241,7 @@ void ModuleNetworkingServer::onUpdate()
 				//TODO: add a timer to enter every X seconds
 
 				OutputMemoryStream packet;
+				packet << PROTOCOL_ID;
 				packet << ServerMessage::Replicate;
 				clientProxy.replicationManager.write(packet);
 				sendPacket(packet, clientProxy.address);

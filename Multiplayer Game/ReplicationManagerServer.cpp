@@ -66,39 +66,34 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 		packet << replicate_aux.networkId;
 		packet << replicate_aux.action;
 
-		switch (replicate_aux.action) {
+		if (replicate_aux.action == ReplicationAction::Create || replicate_aux.action == ReplicationAction::Update) {
 
-		case ReplicationAction::Create:
-		{
+
 			GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(replicate_aux.networkId);
 
 			if (gameObject) {
-				
+
 				LOG("GAMEOBJECT FOUND");
-				
+
+				packet << gameObject->position.x;
+				packet << gameObject->position.y;
+				packet << gameObject->angle;
+				packet << gameObject->size.x;
+				packet << gameObject->size.y;
+
+				if (gameObject->sprite->texture == App->modResources->spacecraft1)
+					packet << (uint8)1;
+				else if (gameObject->sprite->texture == App->modResources->spacecraft2)
+					packet << (uint8)2;
+				else if (gameObject->sprite->texture == App->modResources->spacecraft3)
+					packet << (uint8)3;
+				else
+					packet << (uint8)0;
+
 			}
 		}
-			break;
-
-		case ReplicationAction::Update:
-
-
-			break;
-
-		case ReplicationAction::Destroy:
-
-
-			break;
-
-
-		}
-		
-
-		repCommand.clear();
-
 	}
 
-
-
+	repCommand.clear();
 
 }
