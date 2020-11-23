@@ -143,9 +143,9 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				App->modLinkingContext->getNetworkGameObjects(networkGameObjects, &networkGameObjectsCount);
 				for (uint16 i = 0; i < networkGameObjectsCount; ++i)
 				{
-					GameObject *gameObject = networkGameObjects[i];
-					
+					GameObject *gameObject = networkGameObjects[i];			
 					// TODO(you): World state replication lab session
+					proxy->replicationManager.create(gameObject->networkId);
 				}
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
@@ -238,6 +238,13 @@ void ModuleNetworkingServer::onUpdate()
 				}
 
 				// TODO(you): World state replication lab session
+				//TODO: add a timer to enter every X seconds
+
+				OutputMemoryStream packet;
+				packet << ServerMessage::Replicate;
+				clientProxy.replicationManager.write(packet);
+				sendPacket(packet, clientProxy.address);
+
 
 				// TODO(you): Reliability on top of UDP lab session
 			}
@@ -398,6 +405,7 @@ void ModuleNetworkingServer::updateNetworkObject(GameObject * gameObject)
 		if (clientProxies[i].connected)
 		{
 			// TODO(you): World state replication lab session
+			clientProxies[i].replicationManager.update(gameObject->networkId);
 		}
 	}
 }

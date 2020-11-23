@@ -24,6 +24,6 @@ public:
 
 private:
 
-    std::vector <ReplicationCommand> repCommand;
+    std::vector<ReplicationCommand> repCommand;
     //More members...
 };
