@@ -116,6 +116,16 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 					proxy->name = playerName;
 					proxy->clientId = nextClientId++;
 
+					//Replicate objects from other servers
+					GameObject* networkGameObjects[MAX_NETWORK_OBJECTS] = {};
+					uint16 networkObjectsCount;
+					App->modLinkingContext->getNetworkGameObjects(networkGameObjects, &networkObjectsCount);
+
+					for (uint16 i = 0; i < networkObjectsCount; ++i)
+					{
+						proxy->replicationManager.create(networkGameObjects[i]->networkId);
+					}
+
 					// Create new network object
 					vec2 initialPosition = 500.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f};
 					float initialAngle = 360.0f * Random.next();
@@ -136,17 +146,6 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				welcomePacket << proxy->clientId;
 				welcomePacket << proxy->gameObject->networkId;
 				sendPacket(welcomePacket, fromAddress);
-
-				// Send all network objects to the new player
-				uint16 networkGameObjectsCount;
-				GameObject *networkGameObjects[MAX_NETWORK_OBJECTS];
-				App->modLinkingContext->getNetworkGameObjects(networkGameObjects, &networkGameObjectsCount);
-				for (uint16 i = 0; i < networkGameObjectsCount; ++i)
-				{
-					GameObject *gameObject = networkGameObjects[i];			
-					// TODO(you): World state replication lab session
-					proxy->replicationManager.create(gameObject->networkId);
-				}
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
 			}
