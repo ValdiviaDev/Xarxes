@@ -116,6 +116,11 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 					proxy->name = playerName;
 					proxy->clientId = nextClientId++;
 
+					// Create new network object
+					vec2 initialPosition = 500.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f};
+					float initialAngle = 360.0f * Random.next();
+					proxy->gameObject = spawnPlayer(spaceshipType, initialPosition, initialAngle);
+
 					//Replicate objects from other servers
 					GameObject* networkGameObjects[MAX_NETWORK_OBJECTS] = {};
 					uint16 networkObjectsCount;
@@ -123,13 +128,10 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 
 					for (uint16 i = 0; i < networkObjectsCount; ++i)
 					{
+						if (networkGameObjects[i]->id == proxy->gameObject->id)
+							continue;
 						proxy->replicationManager.create(networkGameObjects[i]->networkId);
 					}
-
-					// Create new network object
-					vec2 initialPosition = 500.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f};
-					float initialAngle = 360.0f * Random.next();
-					proxy->gameObject = spawnPlayer(spaceshipType, initialPosition, initialAngle);
 				}
 				else
 				{

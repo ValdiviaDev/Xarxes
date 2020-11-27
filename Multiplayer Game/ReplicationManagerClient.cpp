@@ -5,7 +5,7 @@
 
 void ReplicationManagerClient::read(const InputMemoryStream& packet)
 {
-	if (packet.RemainingByteCount() > sizeof(uint32)) //Input last sequence number
+	while (packet.RemainingByteCount() > sizeof(uint32)) //Input last sequence number
 	{
 		uint32 networkId;
 		ReplicationAction repAction;
