@@ -8,8 +8,8 @@ class DeliveryDelegate
 {
 public:
 
-	virtual void OnDeliverySuccess(DeliveryManager* deliveryManager) = 0;
-	virtual void OnDeliveryFailure(DeliveryManager* deliveryManager) = 0;
+	void OnDeliverySuccess(DeliveryManager* deliveryManager);
+	void OnDeliveryFailure(DeliveryManager* deliveryManager);
 };
 
 struct Delivery
