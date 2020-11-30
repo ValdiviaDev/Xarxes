@@ -73,7 +73,6 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 
 			if (gameObject) {
 
-				LOG("GAMEOBJECT FOUND");
 
 				packet << gameObject->position.x;
 				packet << gameObject->position.y;

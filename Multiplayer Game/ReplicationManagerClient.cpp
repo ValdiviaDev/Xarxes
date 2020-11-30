@@ -47,6 +47,26 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 					break;
 				}
 
+				if (goType != 0)
+				{
+					
+					go->collider = App->modCollision->addCollider(ColliderType::Player, go);
+					go->collider->isTrigger = true;
+
+					
+					go->behaviour = new Spaceship;
+					go->behaviour->gameObject = go;
+
+					
+				}
+				else
+				{
+					
+					go->collider = App->modCollision->addCollider(ColliderType::Laser, go);
+					go->collider->isTrigger = true;
+					go->sprite->order = 1;
+				}
+
 				App->modLinkingContext->registerNetworkGameObjectWithNetworkId(go, networkId);
 			}
 			else
@@ -73,11 +93,14 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 
 			GameObject* go = App->modLinkingContext->getNetworkGameObject(networkId);
 
+
+
 			if (go) {
 				go->position = position;
 				go->angle = angle;
 			}
 			else { //Create GameObject if not created
+				LOG("Creating GO inside Update (!!!)");
 				go = Instantiate();
 
 				go->position = position;
@@ -122,10 +145,6 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 
 			break;
 		}
-
-		case ReplicationAction::None:
-			//Nothing
-			break;
 		}
 	}
 }

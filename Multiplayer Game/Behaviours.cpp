@@ -24,10 +24,14 @@ void Laser::update()
 			gameObject->collider = App->modCollision->addCollider(ColliderType::Laser, gameObject);
 		}
 
+
+
 		const float lifetimeSeconds = 2.0f;
 		if (secondsSinceCreation >= lifetimeSeconds) {
 			NetworkDestroy(gameObject);
 		}
+		else
+			NetworkUpdate(gameObject);
 	}
 }
 
@@ -87,6 +91,7 @@ void Spaceship::onInput(const InputController &input)
 			laserBehaviour->isServer = isServer;
 
 			laser->tag = gameObject->tag;
+			
 		}
 	}
 }
