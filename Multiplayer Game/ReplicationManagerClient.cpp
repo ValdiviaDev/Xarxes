@@ -100,6 +100,7 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 				go->angle = angle;
 			}
 			else { //Create GameObject if not created
+				//TODO: Look why it crashes when entering here
 				LOG("Creating GO inside Update (!!!)");
 				go = Instantiate();
 
