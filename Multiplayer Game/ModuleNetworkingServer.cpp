@@ -239,13 +239,13 @@ void ModuleNetworkingServer::onUpdate()
 				}
 
 				// TODO(you): World state replication lab session
-				//TODO: add a timer to enter every X seconds
-
-				OutputMemoryStream packet;
-				packet << PROTOCOL_ID;
-				packet << ServerMessage::Replicate;
-				clientProxy.replicationManager.write(packet);
-				sendPacket(packet, clientProxy.address);
+				//if (lastReplicationSent >= replicationMaxTime) {
+					OutputMemoryStream packet;
+					packet << PROTOCOL_ID;
+					packet << ServerMessage::Replicate;
+					clientProxy.replicationManager.write(packet);
+					sendPacket(packet, clientProxy.address);
+				//}
 
 
 				// TODO(you): Reliability on top of UDP lab session
@@ -255,6 +255,11 @@ void ModuleNetworkingServer::onUpdate()
 		if (lastPingReceivedTime >= PING_INTERVAL_SECONDS)
 			lastPingReceivedTime = 0.0f;
 		lastPingReceivedTime += Time.deltaTime;
+
+		//Replication packet time gestion
+		if (lastReplicationSent >= replicationMaxTime)
+			lastReplicationSent = 0.0f;
+		lastReplicationSent += Time.deltaTime;
 	}
 }
 

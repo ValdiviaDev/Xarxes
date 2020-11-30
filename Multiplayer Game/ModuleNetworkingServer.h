@@ -122,6 +122,10 @@ private:
 
 	uint16 listenPort = 0;
 
+	//TODO(you): Replication
+	float lastReplicationSent = 0.0f;
+	float replicationMaxTime = 0.05f;
+
 	// TODO(you): UDP virtual connection lab session
 	float lastPingReceivedTime = 0.0f;
 };
