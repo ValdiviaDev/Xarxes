@@ -243,7 +243,10 @@ void ModuleNetworkingServer::onUpdate()
 					OutputMemoryStream packet;
 					packet << PROTOCOL_ID;
 					packet << ServerMessage::Replicate;
+
 					clientProxy.replicationManager.write(packet);
+					packet << clientProxy.nextExpectedInputSequenceNumber;
+
 					sendPacket(packet, clientProxy.address);
 				//}
 
