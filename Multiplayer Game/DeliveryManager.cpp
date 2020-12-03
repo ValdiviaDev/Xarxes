@@ -113,7 +113,8 @@ void DeliveryManager::processAckdSequenceNumbers(const InputMemoryStream& packet
 void DeliveryManager::processTimedOutPackets()
 {
 
-	for (std::list<Delivery*>::iterator del_it = pendingDeliveries.end(); del_it != pendingDeliveries.begin(); del_it--)
+
+	for (std::list<Delivery*>::iterator del_it = pendingDeliveries.begin(); del_it != pendingDeliveries.end();)
 	{
 		Delivery* del = *del_it;
 		if (Time.time - del->dispatchTime >= PACKET_DELIVERY_TIMEOUT_SECONDS)
@@ -125,8 +126,10 @@ void DeliveryManager::processTimedOutPackets()
 			del = nullptr;
 			del_it = pendingDeliveries.erase(del_it);
 		}
+		else {
+			del_it++;
+		}
 	}
-
 }
 
 void DeliveryManager::clear()
@@ -140,6 +143,8 @@ void DeliveryManager::clear()
 	pendingAcknowledges.clear();
 	pendingDeliveries.clear();
 
+	nextOutgoingSeqNumber = 0;
+	nextIncomingSeqNumber = 0;
 }
 
 void DeliveryDelegate::OnDeliverySuccess(DeliveryManager* deliveryManager) 
@@ -148,7 +153,6 @@ void DeliveryDelegate::OnDeliverySuccess(DeliveryManager* deliveryManager)
 
 void DeliveryDelegate::OnDeliveryFailure(DeliveryManager* deliveryManager)
 {
-
 	GameObject* networkGOs[MAX_NETWORK_OBJECTS];
 	uint16 count;
 
@@ -158,6 +162,4 @@ void DeliveryDelegate::OnDeliveryFailure(DeliveryManager* deliveryManager)
 	{
 		NetworkUpdate(networkGOs[i]);
 	}
-
-
 }

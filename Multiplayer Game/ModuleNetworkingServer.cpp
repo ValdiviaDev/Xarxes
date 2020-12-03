@@ -166,8 +166,6 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 			// Process the input packet and update the corresponding game object
 			if (proxy != nullptr && IsValid(proxy->gameObject))
 			{
-				// TODO(you): Reliability on top of UDP lab session
-
 				// Read input data
 				while (packet.RemainingByteCount() > 0)
 				{
@@ -189,7 +187,9 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 			}
 		}
 		else if (message == ClientMessage::Ping) {
-			//
+			// TODO(you): Reliability on top of UDP lab session
+			//We use the ping to check the acknowledgements
+			proxy->delManager.processAckdSequenceNumbers(packet);
 		}
 		// TODO(you): UDP virtual connection lab session
 		if (proxy)
@@ -239,19 +239,21 @@ void ModuleNetworkingServer::onUpdate()
 				}
 
 				// TODO(you): World state replication lab session
-				//if (lastReplicationSent >= replicationMaxTime) {
+				if (lastReplicationSent >= replicationMaxTime) {
 					OutputMemoryStream packet;
 					packet << PROTOCOL_ID;
 					packet << ServerMessage::Replicate;
+					clientProxy.delManager.writeSequenceNumber(packet);
 
 					clientProxy.replicationManager.write(packet);
 					packet << clientProxy.nextExpectedInputSequenceNumber;
 
 					sendPacket(packet, clientProxy.address);
-				//}
+				}
 
 
 				// TODO(you): Reliability on top of UDP lab session
+					clientProxy.delManager.processTimedOutPackets();
 			}
 		}
 		//Ping time gestion

@@ -137,12 +137,21 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 
 		// TODO(you): World state replication lab session
 		else if (message == ServerMessage::Replicate) {
-			repManagerClient.read(packet);
+			
+			// TODO(you): Reliability on top of UDP lab session
+			if(delManagerClient.processSequenceNumber(packet))
+				repManagerClient.read(packet);
+			else
+			{
+				//Empty the packet if sequence number out of order
+				char dump;
+				while (packet.RemainingByteCount() > sizeof(uint32))
+					packet >> dump;
+			}
 
+			//Receive the input data
 			packet >> inputDataFront;
 		}
-
-		// TODO(you): Reliability on top of UDP lab session
 
 
 	}
@@ -161,6 +170,8 @@ void ModuleNetworkingClient::onUpdate()
 		OutputMemoryStream packet;
 		packet << PROTOCOL_ID;
 		packet << ClientMessage::Ping;
+		delManagerClient.writeSequenceNumbersPendingAck(packet);
+
 		sendPacket(packet, serverAddress);
 		
 		//Reset
