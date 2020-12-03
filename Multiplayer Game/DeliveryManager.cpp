@@ -3,16 +3,30 @@
 
 // TODO(you): Reliability on top of UDP lab session
 
+
+Delivery::Delivery(uint32 sequenceNum) {
+
+	this->sequenceNumber = sequenceNum;
+	this->delegate = new DeliveryDelegate();
+	this->dispatchTime = Time.time;
+}
+
+Delivery::~Delivery()
+{
+	if (delegate != nullptr) {
+		delete delegate;
+		delegate = nullptr;
+	}
+}
+
 Delivery* DeliveryManager::writeSequenceNumber(OutputMemoryStream& packet)
 {
 	//Write the sequence number into the packet
 	packet << nextOutgoingSeqNumber;
 
 	//Store the new delivery into a list into the manager
-	Delivery* del = new Delivery();
-	del->sequenceNumber = nextOutgoingSeqNumber;
-	del->dispatchTime = Time.time;
-	del->delegate = new DeliveryDelegate();
+	Delivery* del = new Delivery(nextOutgoingSeqNumber);
+	
 	pendingDeliveries.push_back(del);
 
 	nextOutgoingSeqNumber++;
@@ -85,9 +99,9 @@ void DeliveryManager::processAckdSequenceNumbers(const InputMemoryStream& packet
 				if (del->delegate)
 					del->delegate->OnDeliverySuccess(this);
 
-				delete del->delegate;
+				
 				delete del;
-
+				del = nullptr;
 				pendingDeliveries.erase(del_it);
 
 				break;
@@ -98,6 +112,21 @@ void DeliveryManager::processAckdSequenceNumbers(const InputMemoryStream& packet
 
 void DeliveryManager::processTimedOutPackets()
 {
+
+	for (std::list<Delivery*>::iterator del_it = pendingDeliveries.end(); del_it != pendingDeliveries.begin(); del_it--)
+	{
+		Delivery* del = *del_it;
+		if (Time.time - del->dispatchTime >= PACKET_DELIVERY_TIMEOUT_SECONDS)
+		{
+			if (del->delegate)
+				del->delegate->OnDeliveryFailure(this);
+
+			delete del;
+			del = nullptr;
+			del_it = pendingDeliveries.erase(del_it);
+		}
+	}
+
 }
 
 void DeliveryManager::clear()
@@ -119,4 +148,16 @@ void DeliveryDelegate::OnDeliverySuccess(DeliveryManager* deliveryManager)
 
 void DeliveryDelegate::OnDeliveryFailure(DeliveryManager* deliveryManager)
 {
+
+	GameObject* networkGOs[MAX_NETWORK_OBJECTS];
+	uint16 count;
+
+	App->modLinkingContext->getNetworkGameObjects(networkGOs, &count);
+
+	for (int i = 0; i < count; i++)
+	{
+		NetworkUpdate(networkGOs[i]);
+	}
+
+
 }
